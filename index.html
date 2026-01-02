@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CEVI 3D Jewellery Display</title>
+
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+  }
+
+  #closeBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    font-size: 16px;
+    background: #e53935;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: none;
+    z-index: 9999;
+  }
+</style>
+
+<script>
+let activeRing = null;
+
+/* ===================== FOCUS ===================== */
+function focusRing(ringGroup) {
+  if (activeRing) return;
+  activeRing = ringGroup;
+
+  document.querySelectorAll('.ring-group').forEach(r => {
+    if (r !== ringGroup) r.setAttribute('visible', false);
+  });
+
+  ringGroup.setAttribute('animation__pos', {
+    property: 'position',
+    to: '0 1.45 -1.2',
+    dur: 600,
+    easing: 'easeOutCubic'
+  });
+
+  ringGroup.setAttribute('animation__scale', {
+    property: 'scale',
+    to: '4 4 4',
+    dur: 600,
+    easing: 'easeOutCubic'
+  });
+
+  // SECTION C: enable drag
+  ringGroup.setAttribute('drag-rotate', '');
+
+  document.getElementById('closeBtn').style.display = 'block';
+}
+
+/* ===================== CLOSE ===================== */
+function closeRing() {
+  if (!activeRing) return;
+
+  // SECTION C cleanup
+  activeRing.object3D.rotation.set(0, 0, 0);
+  activeRing.removeAttribute('drag-rotate');
+
+  activeRing.setAttribute('animation__pos', {
+    property: 'position',
+    to: activeRing.dataset.origin,
+    dur: 600,
+    easing: 'easeOutCubic'
+  });
+
+  activeRing.setAttribute('animation__scale', {
+    property: 'scale',
+    to: activeRing.dataset.scale,
+    dur: 600,
+    easing: 'easeOutCubic'
+  });
+
+  setTimeout(() => {
+    document.querySelectorAll('.ring-group')
+      .forEach(r => r.setAttribute('visible', true));
+    document.getElementById('closeBtn').style.display = 'none';
+    activeRing = null;
+  }, 600);
+}
+
+/* ===================== CLICK ===================== */
+AFRAME.registerComponent('ring-click', {
+  init() {
+    this.el.addEventListener('click', e => {
+      e.stopPropagation();
+      e.preventDefault();
+      focusRing(this.el.parentElement);
+    });
+  }
+});
+
+/* ===================== DRAG ROTATE (SECTION C) ===================== */
+AFRAME.registerComponent('drag-rotate', {
+  init() {
+    this.dragging = false;
+    this.prevX = 0;
+
+    this.onDown = e => {
+      this.dragging = true;
+      this.prevX = e.clientX || e.touches[0].clientX;
+    };
+
+    this.onMove = e => {
+      if (!this.dragging) return;
+      const x = e.clientX || e.touches[0].clientX;
+      const delta = x - this.prevX;
+      this.prevX = x;
+      this.el.object3D.rotation.y += delta * 0.005;
+    };
+
+    this.onUp = () => this.dragging = false;
+
+    this.el.sceneEl.addEventListener('mousedown', this.onDown);
+    this.el.sceneEl.addEventListener('mousemove', this.onMove);
+    this.el.sceneEl.addEventListener('mouseup', this.onUp);
+
+    this.el.sceneEl.addEventListener('touchstart', this.onDown);
+    this.el.sceneEl.addEventListener('touchmove', this.onMove);
+    this.el.sceneEl.addEventListener('touchend', this.onUp);
+  }
+});
+</script>
+</head>
+
+<body>
+
+<button id="closeBtn" onclick="closeRing()">CLOSE</button>
+
+<a-scene background="color: #000">
+
+  <!-- CAMERA -->
+  <a-camera
+    position="0 1.6 3.2"
+    cursor="rayOrigin: mouse"
+    raycaster="objects: .ring-hitbox; far: 40; recursive: false">
+  </a-camera>
+
+  <!-- LIGHTING -->
+  <a-entity light="type: ambient; intensity: 1.3"></a-entity>
+  <a-entity light="type: directional; intensity: 3.8" position="5 8 5"></a-entity>
+  <a-entity light="type: directional; intensity: 2.2" position="-5 6 3"></a-entity>
+
+  <!-- RING 1 -->
+  <a-entity class="ring-group"
+    position="-2.8 1.2 -4.8"
+    scale="3.6 3.6 3.6"
+    data-origin="-2.8 1.2 -4.8"
+    data-scale="3.6 3.6 3.6">
+
+    <a-entity class="ring-hitbox"
+      ring-click
+      geometry="primitive: box; width: 0.7; height: 0.7; depth: 0.7"
+      material="opacity: 0; transparent: true"></a-entity>
+
+    <a-entity gltf-model="assets/ring1.glb"></a-entity>
+  </a-entity>
+
+  <!-- RING 2 -->
+  <a-entity class="ring-group"
+    position="0 1.2 -5.1"
+    scale="2 2 2"
+    data-origin="0 1.2 -5.1"
+    data-scale="2 2 2">
+
+    <a-entity class="ring-hitbox"
+      ring-click
+      geometry="primitive: box; width: 0.6; height: 0.6; depth: 0.6"
+      material="opacity: 0; transparent: true"></a-entity>
+
+    <a-entity gltf-model="assets/ring2.glb"></a-entity>
+  </a-entity>
+
+  <!-- RING 3 -->
+  <a-entity class="ring-group"
+    position="2.8 1.25 -5.2"
+    scale="3.2 3.2 3.2"
+    data-origin="2.8 1.25 -5.2"
+    data-scale="3.2 3.2 3.2">
+
+    <a-entity class="ring-hitbox"
+      ring-click
+      geometry="primitive: box; width: 0.7; height: 0.7; depth: 0.7"
+      material="opacity: 0; transparent: true"></a-entity>
+
+    <a-entity gltf-model="assets/ring3.glb"></a-entity>
+  </a-entity>
+
+</a-scene>
+
+</body>
+</html>
