@@ -13,7 +13,7 @@ https://github.com/soumya0911/cevi-3d-jewellery-display
 
 ---
 
-## 🧠Project Overview
+## Project Overview
 
 The application displays three 3D jewellery rings in a scene.  
 Users can click on a ring to focus it, rotate it using drag interaction, and close it to return the ring to its original position.
