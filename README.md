@@ -1,4 +1,4 @@
-# CEVI 3D Jewellery Display – AR Developer Assessment
+# CEVI 3D Jewellery Display
 
 This project was built as part of the **CEVI AR Developer Role assessment**.  
 It is an interactive Web-based 3D jewellery showcase developed using **A-Frame**, focusing on smooth animations, clean state management, and ECS-based interactions.
